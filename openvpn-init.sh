@@ -18,6 +18,11 @@ CERT_EXPIRE=825
 PUBLIC_IP=$(curl -s ifconfig.me)
 OPENVPN_TMP_DIR="/tmp/openvpn-tmp"
 
+mkdir $OPENVPN_TMP_DIR
+trap "rm -rf $OPENVPN_TMP_DIR" EXIT
+LOG="setup.log"
+exec > >(tee -i "$LOG") 2>&1
+
 # CA Server
 # === [1/3] Installing EasyRSA ==
 
@@ -26,7 +31,6 @@ sudo apt install easy-rsa -y
 
 # === [2/3] Preparing a Public Key Infrastructure Directory ==
 
-mkdir $OPENVPN_TMP_DIR
 sudo chown admin:admin -R $OPENVPN_TMP_DIR
 
 mkdir -p "$EASYRSA_DIR"
