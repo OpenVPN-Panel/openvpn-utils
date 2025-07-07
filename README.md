@@ -12,6 +12,8 @@
 
 ## Требования
 
+https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-an-openvpn-server-on-ubuntu-20-04
+
 - CA и OpenVPN сервер находятся на одном сервере
 - Сервер с установленным OpenVPN и Easy-RSA  
 - Права `sudo` для пользователя `admin`  
