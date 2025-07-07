@@ -5,12 +5,15 @@ adminDir=/home/admin
 serverDir="$adminDir/easy-rsa-server"
 caDir="$adminDir/easy-rsa"
 
+sudo chown -R admin:admin $serverDir
+sudo chown -R admin:admin $caDir
+
 # 0. Ask for delete client if exists
 bash delClient.sh $clientName
 
 # 1. Generate request
 cd "$serverDir" || exit 1
-./easyrsa gen-req "$clientName" nopass
+./easyrsa --batch gen-req "$clientName" nopass
 sudo cp "$serverDir/pki/private/$clientName.key" "$adminDir/client-configs/keys/"
 
 # 2. Import request
