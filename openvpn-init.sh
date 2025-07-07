@@ -241,5 +241,7 @@ sudo sysctl -p >/dev/null 2>&1
 sudo systemctl restart openvpn-server@server.service
 sudo systemctl status openvpn-server@server.service --no-pager 2>&1
 
-sudo iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
+DEFAULT_IFACE=$(ip route | grep default | awk '{print $5}')
+sudo iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o "$DEFAULT_IFACE" -j MASQUERADE
+
 sudo netfilter-persistent save
