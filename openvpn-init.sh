@@ -48,7 +48,7 @@ set_var EASYRSA_ALGO           "ec"
 set_var EASYRSA_DIGEST         "sha512"
 EOF
 
-./easyrsa build-ca nopass
+./easyrsa --batch build-ca nopass
 
 # OpenVPN Server
 # === [1/8] Install OpenVPN and Easy-RSA ===
@@ -76,7 +76,7 @@ EOF
 
 # === [3/8] Creating an OpenVPN Server Certificate Request and Private Key ===
 
-./easyrsa gen-req "$VPN_SERVER_CN" nopass
+./easyrsa --batch gen-req $VPN_SERVER_CN nopass
 sudo cp $EASYRSA_SERVER_DIR/pki/private/$VPN_SERVER_CN.key $SERVER_CONF_DIR
 
 # === [4/8] Signing the OpenVPN Servers Certificate Request ===
@@ -84,6 +84,13 @@ sudo cp $EASYRSA_SERVER_DIR/pki/private/$VPN_SERVER_CN.key $SERVER_CONF_DIR
 sudo cp $EASYRSA_SERVER_DIR/pki/reqs/$VPN_SERVER_CN.req $OPENVPN_TMP_DIR
 cd $EASYRSA_DIR
 sudo ./easyrsa import-req $OPENVPN_TMP_DIR/$VPN_SERVER_CN.req $VPN_SERVER_CN
+sudo ./easyrsa sign-req server $VPN_SERVER_CN
+
+sudo cp pki/issued/$VPN_SERVER_CN.crt $OPENVPN_TMP_DIR
+sudo cp pki/ca.crt $OPENVPN_TMP_DIR
+
+sudo cp $OPENVPN_TMP_DIR/{$VPN_SERVER_CN.crt,ca.crt}
+
 
 # === [5/8] Configuring OpenVPN Cryptographic Material ===
 
@@ -95,14 +102,73 @@ sudo cp ta.key $SERVER_CONF_DIR
 
 mkdir -p $CLIENT_CONFIGS_DIR/keys
 chmod -R 700 $CLIENT_CONFIGS_DIR
-cd $EASYRSA_SERVER_DIR
-./easyrsa gen-req $CLIENT_NAME nopass
+./easyrsa --batch gen-req $CLIENT_NAME nopass
 cp pki/private/$CLIENT_NAME.key $CLIENT_CONFIGS_DIR/keys/
 
 sudo cp pki/reqs/$CLIENT_NAME.req $OPENVPN_TMP_DIR
 
 cd $EASYRSA_DIR
-./easyrsa import-req $OPENVPN_TMP_DIR/$CLIENT_NAME.req $CLIENT_NAME
-./easyrsa sign-req client $CLIENT_NAME
+sudo ./easyrsa import-req $OPENVPN_TMP_DIR/$CLIENT_NAME.req $CLIENT_NAME
+sudo ./easyrsa sign-req client $CLIENT_NAME
 
-sudo cp pki/issued
+sudo cp pki/issued/$CLIENT_NAME.crt $OPENVPN_TMP_DIR
+
+sudo cp $OPENVPN_TMP_DIR/$CLIENT_NAME.crt $CLIENT_CONFIGS_DIR/keys/
+
+cp $EASYRSA_SERVER_DIR/ta.key $CLIENT_CONFIGS_DIR/keys/
+sudo cp $SERVER_CONF_DIR/ca.crt $CLIENT_CONFIGS_DIR/keys/
+sudo chown admin.admin $CLIENT_CONFIGS_DIR/keys/*
+
+# === [7/8] Configuring OpenVPN ===
+sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz $SERVER_CONF_DIR
+sudo gunzip $SERVER_CONF_DIR/server.conf.gz
+
+SERVER_CONF=$SERVER_CONF_DIR/server.conf
+
+# 1. Comment out existing tls-auth line and add tls-crypt line after it
+sudo sed -i '/^tls-auth / s/^/;/' "$SERVER_CONF"
+sudo sed -i '/^;tls-auth /a tls-crypt ta.key' "$SERVER_CONF"
+
+# 2. Comment out existing cipher AES-256-CBC and add cipher AES-256-GCM after it
+sudo sed -i '/^cipher AES-256-CBC/ s/^/;/' "$SERVER_CONF"
+sudo sed -i '/^;cipher AES-256-CBC/ a cipher AES-256-GCM' "$SERVER_CONF"
+
+# 3. Add auth SHA256 after cipher line (if there is no auth, add after cipher)
+if ! grep -q '^auth SHA256' "$SERVER_CONF"; then
+  sudo sed -i '/^cipher AES-256-GCM/ a auth SHA256' "$SERVER_CONF"
+fi
+
+# 4. Comment out dh line and add "dh none"
+sudo sed -i '/^dh / s/^/;/' "$SERVER_CONF"
+if ! grep -q '^dh none' "$SERVER_CONF"; then
+  sudo sed -i '/^;dh /a dh none' "$SERVER_CONF"
+fi
+
+# 5. Uncomment user nobody и group nogroup
+sudo sed -i 's/^;user nobody/user nobody/' "$SERVER_CONF"
+sudo sed -i 's/^;group nogroup/group nogroup/' "$SERVER_CONF"
+
+# 6. Uncomment push "redirect-gateway def1 bypass-dhcp"
+sudo sed -i 's/^;push "redirect-gateway def1 bypass-dhcp"/push "redirect-gateway def1 bypass-dhcp"/' "$SERVER_CONF"
+
+sudo sed -i 's/^;push "dhcp-option DNS 208.67.222.222"/push "dhcp-option DNS 208.67.222.222"/' "$SERVER_CONF"
+sudo sed -i 's/^;push "dhcp-option DNS 208.67.220.220"/push "dhcp-option DNS 208.67.220.220"/' "$SERVER_CONF"
+
+
+# === [8/8] Adjusting the OpenVPN Server Networking Configuration ===
+
+sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+sudo sysctl -p
+
+# === [9/8] Firewall Configuration ===
+# Skip
+
+# === [10/8] Starting OpenVPN ===
+
+sudo systemctl -f enable openvpn-server@server.service
+sudo systemctl start openvpn-server@server.service
+sudo systemctl status openvpn-server@server.service
+
+# === [11/8] Creating the Client Configuration Infrastructure ===
+mkdir -p $CLIENT_CONFIGS_DIR/files
+cp /usr/share/doc/openvpn/examples/sample-config-files/client.conf $CLIENT_CONFIGS_DIR/base.conf
