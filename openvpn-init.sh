@@ -171,17 +171,16 @@ cp /usr/share/doc/openvpn/examples/sample-config-files/client.conf $CLIENT_CONFI
 
 sed -i "s/^remote .*/remote $PUBLIC_IP $PORT/" "$CLIENT_CONFIGS_DIR/base.conf"
 sed -i "s/^proto .*/proto $PROTO/" "$CLIENT_CONFIGS_DIR/base.conf"
-sed -i 's/^;user nobody/user nobody/' "$CLIENT_CONFIGS_DIR/base.conf"
-sed -i 's/^;group nogroup/group nogroup/' "$CLIENT_CONFIGS_DIR/base.conf"
 
 sed -i 's/^ca /#ca /' "$CLIENT_CONFIGS_DIR/base.conf"
 sed -i 's/^cert /#cert /' "$CLIENT_CONFIGS_DIR/base.conf"
 sed -i 's/^key /#key /' "$CLIENT_CONFIGS_DIR/base.conf"
-sed -i 's/^;tls-auth /#tls-auth /' "$CLIENT_CONFIGS_DIR/base.conf"
 
 echo "cipher AES-256-GCM" >> "$CLIENT_CONFIGS_DIR/base.conf"
 echo "auth SHA256" >> "$CLIENT_CONFIGS_DIR/base.conf"
 echo "key-direction 1" >> "$CLIENT_CONFIGS_DIR/base.conf"
+
+sed -i '/^key-direction 1/a disable-dco' "$CLIENT_CONFIGS_DIR/base.conf"
 
 # Add commented DNS resolver scripts for Linux clients (resolvconf and systemd-resolved)
 cat >> "$CLIENT_CONFIGS_DIR/base.conf" <<'EOF'
