@@ -1,36 +1,60 @@
 #!/bin/bash
+set -e
 
-clientName=${1}
-adminDir=/home/admin
-serverDir="$adminDir/easy-rsa-server"
-caDir="$adminDir/easy-rsa"
+CLIENT_NAME="$1"
 
-sudo chown -R admin:admin $serverDir
-sudo chown -R admin:admin $caDir
+if [ -z "$CLIENT_NAME" ]; then
+  echo "Error: Please specify a client name. Usage: ./addClient.sh client-name"
+  exit 1
+fi
 
-# 0. Ask for delete client if exists
-bash delClient.sh $clientName
+# === Configuration paths ===
+VPN_DIR="$HOME/openvpn"
+EASYRSA_SERVER_DIR="$VPN_DIR/easy-rsa-server"
+EASYRSA_CA_DIR="$VPN_DIR/easy-rsa"
+CLIENT_CONFIGS_DIR="$VPN_DIR/client-configs"
+KEYS_DIR="$CLIENT_CONFIGS_DIR/keys"
+FILES_DIR="$CLIENT_CONFIGS_DIR/files"
 
-# 1. Generate request
-cd "$serverDir" || exit 1
-./easyrsa --batch gen-req "$clientName" nopass
-sudo cp "$serverDir/pki/private/$clientName.key" "$adminDir/client-configs/keys/"
+# === Check required directories ===
+for dir in "$EASYRSA_SERVER_DIR" "$EASYRSA_CA_DIR" "$CLIENT_CONFIGS_DIR"; do
+  if [ ! -d "$dir" ]; then
+    echo "Error: Directory not found: $dir"
+    exit 1
+  fi
+done
 
-# 2. Import request
-cd "$caDir" || exit 1
-sudo ./easyrsa import-req "$serverDir/pki/reqs/$clientName.req" $clientName
+# === Check if make_config.sh script exists and is executable ===
+if [ ! -x "$CLIENT_CONFIGS_DIR/make_config.sh" ]; then
+  echo "Error: make_config.sh script not found or not executable"
+  exit 1
+fi
 
-# 3. Sign cert
-sudo ./easyrsa sign-req client $clientName
+# === Remove client if it already exists ===
+if [ -f "$KEYS_DIR/$CLIENT_NAME.key" ] || [ -f "$KEYS_DIR/$CLIENT_NAME.crt" ]; then
+  echo "Client $CLIENT_NAME already exists. Deleting old keys..."
+  bash "$VPN_DIR/delClient.sh" "$CLIENT_NAME"
+fi
 
-# 4. Copy cert
-sudo cp "$caDir/pki/issued/$clientName.crt" "$adminDir/client-configs/keys/"
+# === Set ownership of PKI directories ===
+sudo chown -R "$(whoami)":"$(whoami)" "$EASYRSA_SERVER_DIR"
+sudo chown -R "$(whoami)":"$(whoami)" "$EASYRSA_CA_DIR"
 
-sudo chown -R admin:admin $adminDir/client-configs
+# === [1] Generate client certificate request ===
+cd "$EASYRSA_SERVER_DIR"
+./easyrsa --batch gen-req "$CLIENT_NAME" nopass
+cp "pki/private/$CLIENT_NAME.key" "$KEYS_DIR/"
 
-# 5. Create opvn client config
-cd "$adminDir/client-configs"
-bash "$adminDir/client-configs/make_config.sh" $clientName
+# === [2] Import request to CA and sign client certificate ===
+cd "$EASYRSA_CA_DIR"
+./easyrsa import-req "$EASYRSA_SERVER_DIR/pki/reqs/$CLIENT_NAME.req" "$CLIENT_NAME"
+./easyrsa --batch sign-req client "$CLIENT_NAME"
+cp "pki/issued/$CLIENT_NAME.crt" "$KEYS_DIR/"
 
-echo "Config file was created in:"
-echo "$adminDir/client-configs/files/$clientName.ovpn"
+# === [3] Generate the client .ovpn configuration file ===
+cd "$CLIENT_CONFIGS_DIR"
+bash ./make_config.sh "$CLIENT_NAME"
+
+# === [4] Output result path ===
+echo "Client configuration file created at:"
+echo "$FILES_DIR/$CLIENT_NAME.ovpn"
