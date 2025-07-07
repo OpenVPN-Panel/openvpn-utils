@@ -21,8 +21,8 @@ OPENVPN_TMP_DIR="/tmp/openvpn-tmp"
 # CA Server
 # === [1/3] Installing EasyRSA ==
 
-#sudo apt update
-#sudo apt install easy-rsa -y
+sudo apt update
+sudo apt install easy-rsa -y
 
 # === [2/3] Preparing a Public Key Infrastructure Directory ==
 
@@ -54,7 +54,7 @@ sudo ./easyrsa --batch build-ca nopass
 # === [1/8] Install OpenVPN and Easy-RSA ===
 
 echo "[1/8] Installing OpenVPN and Easy-RSA..."
-#sudo apt install -y openvpn curl jq
+sudo apt install -y openvpn curl jq iptables-persistent
 
 mkdir -p $EASYRSA_SERVER_DIR
 ln -s /usr/share/easy-rsa/* $EASYRSA_SERVER_DIR
@@ -240,3 +240,7 @@ sudo sysctl -p >/dev/null 2>&1
 
 sudo systemctl restart openvpn-server@server.service
 sudo systemctl status openvpn-server@server.service --no-pager 2>&1
+
+
+sudo iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
+sudo netfilter-persistent save
