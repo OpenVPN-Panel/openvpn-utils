@@ -235,7 +235,7 @@ ls $CLIENT_CONFIGS_DIR/files
 
 # === [8/8] Adjusting the OpenVPN Server Networking Configuration ===
 
-sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+grep -q '^net.ipv4.ip_forward=1' /etc/sysctl.conf || echo 'net.ipv4.ip_forward=1' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p >/dev/null 2>&1
 
 sudo systemctl restart openvpn-server@server.service
