@@ -179,6 +179,7 @@ sed -i "s/^proto .*/proto $PROTO/" "$CLIENT_CONFIGS_DIR/base.conf"
 sed -i 's/^ca /#ca /' "$CLIENT_CONFIGS_DIR/base.conf"
 sed -i 's/^cert /#cert /' "$CLIENT_CONFIGS_DIR/base.conf"
 sed -i 's/^key /#key /' "$CLIENT_CONFIGS_DIR/base.conf"
+sed -i 's/^tls-auth ta.key 1/#tls-auth ta.key 1/' "$CLIENT_CONFIGS_DIR/base.conf"
 
 echo "cipher AES-256-GCM" >> "$CLIENT_CONFIGS_DIR/base.conf"
 echo "auth SHA256" >> "$CLIENT_CONFIGS_DIR/base.conf"
