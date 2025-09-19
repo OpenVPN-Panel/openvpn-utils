@@ -32,8 +32,9 @@ fi
 
 # === Remove client if it already exists ===
 if [ -f "$KEYS_DIR/$CLIENT_NAME.key" ] || [ -f "$KEYS_DIR/$CLIENT_NAME.crt" ]; then
-  echo "Client $CLIENT_NAME already exists. Deleting old keys..."
-  bash "$VPN_DIR/delClient.sh" "$CLIENT_NAME"
+  echo "Client $CLIENT_NAME already exists. Exiting..."
+#  bash "$VPN_DIR/delClient.sh" "$CLIENT_NAME"
+  exit 1
 fi
 
 # === Set ownership of PKI directories ===
