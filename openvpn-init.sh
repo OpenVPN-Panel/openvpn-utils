@@ -125,39 +125,39 @@ sudo cp $SERVER_CONF_DIR/ca.crt $CLIENT_CONFIGS_DIR/keys/
 #sudo chown admin.admin $CLIENT_CONFIGS_DIR/keys/*
 
 # === [7/13] Configuring OpenVPN ===
-sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz $SERVER_CONF_DIR
-sudo gunzip $SERVER_CONF_DIR/server.conf.gz
+#sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz $SERVER_CONF_DIR
+#sudo gunzip $SERVER_CONF_DIR/server.conf.gz
 
-SERVER_CONF=$SERVER_CONF_DIR/server.conf
+#SERVER_CONF=$SERVER_CONF_DIR/server.conf
 
 # 1. Comment out existing tls-auth line and add tls-crypt line after it
-sudo sed -i '/^tls-auth / s/^/;/' "$SERVER_CONF"
-sudo sed -i '/^;tls-auth /a tls-crypt ta.key' "$SERVER_CONF"
+#sudo sed -i '/^tls-auth / s/^/;/' "$SERVER_CONF"
+#sudo sed -i '/^;tls-auth /a tls-crypt ta.key' "$SERVER_CONF"
 
 # 2. Comment out existing cipher AES-256-CBC and add cipher AES-256-GCM after it
-sudo sed -i '/^cipher AES-256-CBC/ s/^/;/' "$SERVER_CONF"
-sudo sed -i '/^;cipher AES-256-CBC/ a cipher AES-256-GCM' "$SERVER_CONF"
+#sudo sed -i '/^cipher AES-256-CBC/ s/^/;/' "$SERVER_CONF"
+#sudo sed -i '/^;cipher AES-256-CBC/ a cipher AES-256-GCM' "$SERVER_CONF"
 
 # 3. Add auth SHA256 after cipher line (if there is no auth, add after cipher)
-if ! grep -q '^auth SHA256' "$SERVER_CONF"; then
-  sudo sed -i '/^cipher AES-256-GCM/ a auth SHA256' "$SERVER_CONF"
-fi
+#if ! grep -q '^auth SHA256' "$SERVER_CONF"; then
+#  sudo sed -i '/^cipher AES-256-GCM/ a auth SHA256' "$SERVER_CONF"
+#fi
 
 # 4. Comment out dh line and add "dh none"
-sudo sed -i '/^dh / s/^/;/' "$SERVER_CONF"
-if ! grep -q '^dh none' "$SERVER_CONF"; then
-  sudo sed -i '/^;dh /a dh none' "$SERVER_CONF"
-fi
+#sudo sed -i '/^dh / s/^/;/' "$SERVER_CONF"
+#if ! grep -q '^dh none' "$SERVER_CONF"; then
+#  sudo sed -i '/^;dh /a dh none' "$SERVER_CONF"
+#fi
 
 # 5. Uncomment user nobody и group nogroup
-sudo sed -i 's/^;user nobody/user nobody/' "$SERVER_CONF"
-sudo sed -i 's/^;group nogroup/group nogroup/' "$SERVER_CONF"
+#sudo sed -i 's/^;user nobody/user nobody/' "$SERVER_CONF"
+#sudo sed -i 's/^;group nogroup/group nogroup/' "$SERVER_CONF"
 
 # 6. Uncomment push "redirect-gateway def1 bypass-dhcp"
-sudo sed -i 's/^;push "redirect-gateway def1 bypass-dhcp"/push "redirect-gateway def1 bypass-dhcp"/' "$SERVER_CONF"
-
-sudo sed -i 's/^;push "dhcp-option DNS 208.67.222.222"/push "dhcp-option DNS 208.67.222.222"/' "$SERVER_CONF"
-sudo sed -i 's/^;push "dhcp-option DNS 208.67.220.220"/push "dhcp-option DNS 208.67.220.220"/' "$SERVER_CONF"
+#sudo sed -i 's/^;push "redirect-gateway def1 bypass-dhcp"/push "redirect-gateway def1 bypass-dhcp"/' "$SERVER_CONF"
+#
+#sudo sed -i 's/^;push "dhcp-option DNS 208.67.222.222"/push "dhcp-option DNS 208.67.222.222"/' "$SERVER_CONF"
+#sudo sed -i 's/^;push "dhcp-option DNS 208.67.220.220"/push "dhcp-option DNS 208.67.220.220"/' "$SERVER_CONF"
 
 # === [9/13] Firewall Configuration ===
 # -
