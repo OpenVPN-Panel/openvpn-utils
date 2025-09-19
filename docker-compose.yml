@@ -9,6 +9,6 @@ services:
     ports:
       - "1194:1194/udp"
     volumes:
-      - ./openvpn-data:/etc/openvpn
-      - ./openvpn-data/home:/root/openvpn
+      - ./openvpn-data/server:/etc/openvpn/server
+      - ./openvpn-data/home:/root/openvpn/
     restart: unless-stopped
