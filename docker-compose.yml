@@ -2,6 +2,7 @@ services:
   openvpn:
     build: .
     container_name: openvpn
+    network_mode: host
     cap_add:
       - NET_ADMIN
     devices:
