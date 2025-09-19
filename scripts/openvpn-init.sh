@@ -15,7 +15,7 @@ PORT=1194
 KEY_SIZE=2048
 CA_EXPIRE=3650
 CERT_EXPIRE=825
-PUBLIC_IP=$(curl -4 -s ifconfig.me)
+PUBLIC_IP=$(hostname -I | awk '{print $1}')
 OPENVPN_TMP_DIR="/tmp/openvpn-tmp"
 
 mkdir -p $OPENVPN_TMP_DIR || true
