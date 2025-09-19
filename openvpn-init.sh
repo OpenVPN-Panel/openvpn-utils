@@ -31,7 +31,7 @@ sudo apt install easy-rsa -y
 
 # === [2/3] Preparing a Public Key Infrastructure Directory ==
 
-sudo chown admin:admin -R $OPENVPN_TMP_DIR
+#sudo chown admin:admin -R $OPENVPN_TMP_DIR
 
 mkdir -p "$EASYRSA_DIR"
 ln -s /usr/share/easy-rsa/* "$EASYRSA_DIR"
@@ -62,7 +62,7 @@ sudo apt install -y openvpn curl jq iptables-persistent
 
 mkdir -p $EASYRSA_SERVER_DIR
 ln -s /usr/share/easy-rsa/* $EASYRSA_SERVER_DIR
-sudo chown admin $EASYRSA_SERVER_DIR
+#sudo chown admin $EASYRSA_SERVER_DIR
 chmod 700 $EASYRSA_SERVER_DIR
 
 # === [2/13] Creating a PKI for OpenVPN ===
@@ -121,7 +121,7 @@ sudo cp $OPENVPN_TMP_DIR/$CLIENT_NAME.crt $CLIENT_CONFIGS_DIR/keys/
 
 cp $EASYRSA_SERVER_DIR/ta.key $CLIENT_CONFIGS_DIR/keys/
 sudo cp $SERVER_CONF_DIR/ca.crt $CLIENT_CONFIGS_DIR/keys/
-sudo chown admin.admin $CLIENT_CONFIGS_DIR/keys/*
+#sudo chown admin.admin $CLIENT_CONFIGS_DIR/keys/*
 
 # === [7/13] Configuring OpenVPN ===
 sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz $SERVER_CONF_DIR
