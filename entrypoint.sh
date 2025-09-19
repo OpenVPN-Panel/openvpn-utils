@@ -6,6 +6,8 @@ SCRIPTS_DIR="/root/openvpn/scripts"
 
 if [ ! -f "$SERVER_CONF" ]; then
   echo "[INIT] No server.conf found, running setup.sh..."
+  envsubst < /tmp/server.conf.template > /tmp/server.conf
+  envsubst < /tmp/base.conf.template > /tmp/base.conf
   /usr/local/bin/setup.sh
 fi
 
