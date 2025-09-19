@@ -3,8 +3,8 @@ services:
     build: .
     container_name: openvpn
     network_mode: host
-    environment:
-      - MGMT_PORT=55555
+    env_file:
+      - .env
     cap_add:
       - NET_ADMIN
     devices:
