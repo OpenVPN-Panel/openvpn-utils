@@ -1,0 +1,13 @@
+services:
+  openvpn:
+    build: .
+    container_name: openvpn
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    ports:
+      - "1194:1194/udp"
+    volumes:
+      - ./openvpn-data:/etc/openvpn
+    restart: unless-stopped
