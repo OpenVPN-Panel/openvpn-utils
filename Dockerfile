@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /etc/openvpn
 
 COPY assets/server.conf.gz /usr/share/doc/openvpn/examples/sample-config-files
+COPY assets/client.conf /usr/share/doc/openvpn/examples/sample-config-files
+
 COPY openvpn-init.sh /usr/local/bin/setup.sh
 RUN chmod +x /usr/local/bin/setup.sh
 
