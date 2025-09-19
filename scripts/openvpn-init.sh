@@ -66,7 +66,6 @@ chmod 700 $EASYRSA_SERVER_DIR
 
 # === [2/10] Creating a PKI for OpenVPN ===
 
-
 echo "[2/8] Initializing Easy-RSA at $EASYRSA_DIR..."
 cd $EASYRSA_SERVER_DIR
 
@@ -123,39 +122,12 @@ sudo cp $SERVER_CONF_DIR/ca.crt $CLIENT_CONFIGS_DIR/keys/
 # === [7/10] Configuring OpenVPN ===
 sudo cp /tmp/server.conf $SERVER_CONF_DIR
 
-# === [813] Creating the Client Configuration Infrastructure ===
+# === [8/10] Creating the Client Configuration Infrastructure ===
 mkdir -p $CLIENT_CONFIGS_DIR/files || true
-cp /usr/share/doc/openvpn/examples/sample-config-files/client.conf $CLIENT_CONFIGS_DIR/base.conf
+sudo cp /tmp/base.conf $CLIENT_CONFIGS_DIR/base.conf
 
 sed -i "s/^remote .*/remote $PUBLIC_IP $PORT/" "$CLIENT_CONFIGS_DIR/base.conf"
 sed -i "s/^proto .*/proto $PROTO/" "$CLIENT_CONFIGS_DIR/base.conf"
-
-sed -i 's/^ca /#ca /' "$CLIENT_CONFIGS_DIR/base.conf"
-sed -i 's/^cert /#cert /' "$CLIENT_CONFIGS_DIR/base.conf"
-sed -i 's/^key /#key /' "$CLIENT_CONFIGS_DIR/base.conf"
-sed -i 's/^tls-auth ta.key 1/#tls-auth ta.key 1/' "$CLIENT_CONFIGS_DIR/base.conf"
-
-echo "cipher AES-256-GCM" >> "$CLIENT_CONFIGS_DIR/base.conf"
-echo "auth SHA256" >> "$CLIENT_CONFIGS_DIR/base.conf"
-echo "key-direction 1" >> "$CLIENT_CONFIGS_DIR/base.conf"
-
-sed -i '/^key-direction 1/a disable-dco' "$CLIENT_CONFIGS_DIR/base.conf"
-
-# Add commented DNS resolver scripts for Linux clients (resolvconf and systemd-resolved)
-cat >> "$CLIENT_CONFIGS_DIR/base.conf" <<'EOF'
-
-# DNS resolver scripts for Linux clients
-
-; script-security 2
-; up /etc/openvpn/update-resolv-conf
-; down /etc/openvpn/update-resolv-conf
-
-; script-security 2
-; up /etc/openvpn/update-systemd-resolved
-; down /etc/openvpn/update-systemd-resolved
-; down-pre
-; dhcp-option DOMAIN-ROUTE .
-EOF
 
 # --- Create make_config.sh script for client .ovpn generation ---
 cat > "$CLIENT_CONFIGS_DIR/make_config.sh" <<EOF
