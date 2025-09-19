@@ -127,6 +127,7 @@ sudo cp $SERVER_CONF_DIR/ca.crt $CLIENT_CONFIGS_DIR/keys/
 # === [7/13] Configuring OpenVPN ===
 #sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz $SERVER_CONF_DIR
 #sudo gunzip $SERVER_CONF_DIR/server.conf.gz
+sudo cp /tmp/server.conf $SERVER_CONF_DIR
 
 #SERVER_CONF=$SERVER_CONF_DIR/server.conf
 
