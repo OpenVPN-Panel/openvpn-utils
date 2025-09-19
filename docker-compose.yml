@@ -21,4 +21,4 @@ services:
       - ./openvpn-data/server:/etc/openvpn/server
       - ./openvpn-data/home:/root/openvpn/
       - ./scripts:/root/openvpn/scripts
-    entrypoint: [ "bash" ]
+    entrypoint: [ "sleep", "infinity" ]
