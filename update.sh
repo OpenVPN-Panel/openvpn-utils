@@ -3,4 +3,4 @@
 git reset --hard HEAD
 git pull
 
-docker-compose down && docker-compose up -d --build
+docker compose down && docker compose up -d --build
