@@ -18,7 +18,7 @@ CERT_EXPIRE=825
 PUBLIC_IP=$(curl -s ifconfig.me)
 OPENVPN_TMP_DIR="/tmp/openvpn-tmp"
 
-mkdir -p $OPENVPN_TMP_DIR
+mkdir -p $OPENVPN_TMP_DIR || true
 trap "rm -rf $OPENVPN_TMP_DIR" EXIT
 LOG="setup.log"
 exec > >(tee -i "$LOG") 2>&1
@@ -33,8 +33,8 @@ sudo apt install easy-rsa -y
 
 #sudo chown admin:admin -R $OPENVPN_TMP_DIR
 
-mkdir -p $SERVER_CONF_DIR
-mkdir -p $EASYRSA_DIR
+mkdir -p $SERVER_CONF_DIR || true
+mkdir -p $EASYRSA_DIR || true
 ln -s /usr/share/easy-rsa/* "$EASYRSA_DIR"
 chmod 700 "$EASYRSA_DIR"
 cd "$EASYRSA_DIR"
@@ -61,7 +61,7 @@ sudo ./easyrsa --batch build-ca nopass
 echo "[1/8] Installing OpenVPN and Easy-RSA..."
 sudo apt install -y openvpn curl jq iptables-persistent
 
-mkdir -p $EASYRSA_SERVER_DIR
+mkdir -p $EASYRSA_SERVER_DIR || true
 ln -s /usr/share/easy-rsa/* $EASYRSA_SERVER_DIR
 #sudo chown admin $EASYRSA_SERVER_DIR
 chmod 700 $EASYRSA_SERVER_DIR
@@ -105,7 +105,7 @@ sudo cp ta.key $SERVER_CONF_DIR
 
 # === [6/13] Generating a Client Certificate and Key Pair ===
 
-mkdir -p $CLIENT_CONFIGS_DIR/keys
+mkdir -p $CLIENT_CONFIGS_DIR/keys || true
 chmod -R 700 $CLIENT_CONFIGS_DIR
 sudo ./easyrsa --batch gen-req $CLIENT_NAME nopass
 sudo cp pki/private/$CLIENT_NAME.key $CLIENT_CONFIGS_DIR/keys/
@@ -171,7 +171,7 @@ sudo sed -i 's/^;push "dhcp-option DNS 208.67.220.220"/push "dhcp-option DNS 208
 #sleep 2
 
 # === [11/13] Creating the Client Configuration Infrastructure ===
-mkdir -p $CLIENT_CONFIGS_DIR/files
+mkdir -p $CLIENT_CONFIGS_DIR/files || true
 cp /usr/share/doc/openvpn/examples/sample-config-files/client.conf $CLIENT_CONFIGS_DIR/base.conf
 
 sed -i "s/^remote .*/remote $PUBLIC_IP $PORT/" "$CLIENT_CONFIGS_DIR/base.conf"
