@@ -17,15 +17,15 @@ services:
       - ./scripts:/root/openvpn/scripts
     restart: unless-stopped
 
-  agent:
-    build:
-      context: .
-      dockerfile: Dockerfile.agent
-    container_name: agent
-    network_mode: host
-    volumes:
-      - ./openvpn-data/server:/etc/openvpn/server
-      - ./openvpn-data/home:/root/openvpn/
-      - ./scripts:/root/openvpn/scripts
-    depends_on:
-      - openvpn
+#  agent:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.agent
+#    container_name: agent
+#    network_mode: host
+#    volumes:
+#      - ./openvpn-data/server:/etc/openvpn/server
+#      - ./openvpn-data/home:/root/openvpn/
+#      - ./scripts:/root/openvpn/scripts
+#    depends_on:
+#      - openvpn
