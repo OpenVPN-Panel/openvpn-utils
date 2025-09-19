@@ -9,9 +9,6 @@ services:
       - NET_ADMIN
     devices:
       - /dev/net/tun
-    ports:
-      - "1194:1194/udp"
-      - ${MGMT_PORT}:${MGMT_PORT}
     volumes:
       - ./openvpn-data/server:/etc/openvpn/server
       - ./openvpn-data/home:/root/openvpn/
