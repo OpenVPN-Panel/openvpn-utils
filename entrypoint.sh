@@ -9,4 +9,5 @@ if [ ! -f "$SERVER_CONF" ]; then
 fi
 
 echo "[START] Launching OpenVPN..."
+cd /etc/openvpn/server
 exec openvpn --config "$SERVER_CONF"
