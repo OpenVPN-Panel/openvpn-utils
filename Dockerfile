@@ -12,11 +12,14 @@ RUN mkdir -p ./server/
 COPY assets/client.conf /usr/share/doc/openvpn/examples/sample-config-files/
 COPY assets/server.conf /tmp/server.conf
 
-COPY openvpn-init.sh /usr/local/bin/setup.sh
+COPY scripts/openvpn-init.sh /usr/local/bin/setup.sh
 RUN chmod +x /usr/local/bin/setup.sh
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+COPY scripts/ /usr/local/share/openvpn-scripts/
+RUN chmod +x /usr/local/share/openvpn-scripts/*
 
 EXPOSE 1194/udp
 

@@ -12,4 +12,13 @@ services:
     volumes:
       - ./openvpn-data/server:/etc/openvpn/server
       - ./openvpn-data/home:/root/openvpn/
+      - ./scripts:/root/openvpn/scripts
     restart: unless-stopped
+
+  agent:
+    image: "ubuntu:22.04"
+    volumes:
+      - ./openvpn-data/server:/etc/openvpn/server
+      - ./openvpn-data/home:/root/openvpn/
+      - ./scripts:/root/openvpn/scripts
+    entrypoint: [ "bash" ]

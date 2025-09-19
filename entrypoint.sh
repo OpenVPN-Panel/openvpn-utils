@@ -2,10 +2,17 @@
 set -e
 
 SERVER_CONF="/etc/openvpn/server/server.conf"
+SCRIPTS_DIR="/root/openvpn/scripts"
 
 if [ ! -f "$SERVER_CONF" ]; then
   echo "[INIT] No server.conf found, running setup.sh..."
   /usr/local/bin/setup.sh
+fi
+
+if [ ! -d "$SCRIPTS_DIR" ] || [ -z "$(ls -A $SCRIPTS_DIR)" ]; then
+  echo "[INIT] Copying management scripts into volume..."
+  cp -r /usr/local/share/openvpn-scripts/* "$SCRIPTS_DIR/"
+  chmod +x "$SCRIPTS_DIR"/*.sh
 fi
 
 echo "[START] Launching OpenVPN..."

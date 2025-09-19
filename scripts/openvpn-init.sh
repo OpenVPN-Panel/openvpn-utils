@@ -31,8 +31,6 @@ sudo apt install easy-rsa -y
 
 # === [2/3] Preparing a Public Key Infrastructure Directory ==
 
-#sudo chown admin:admin -R $OPENVPN_TMP_DIR
-
 mkdir -p $SERVER_CONF_DIR || true
 mkdir -p $EASYRSA_DIR || true
 ln -s /usr/share/easy-rsa/* "$EASYRSA_DIR"
@@ -56,7 +54,7 @@ EOF
 sudo ./easyrsa --batch build-ca nopass
 
 # OpenVPN Server
-# === [1/13] Install OpenVPN and Easy-RSA ===
+# === [1/10] Install OpenVPN and Easy-RSA ===
 
 echo "[1/8] Installing OpenVPN and Easy-RSA..."
 sudo apt install -y openvpn curl jq iptables-persistent
@@ -66,7 +64,7 @@ ln -s /usr/share/easy-rsa/* $EASYRSA_SERVER_DIR
 #sudo chown admin $EASYRSA_SERVER_DIR
 chmod 700 $EASYRSA_SERVER_DIR
 
-# === [2/13] Creating a PKI for OpenVPN ===
+# === [2/10] Creating a PKI for OpenVPN ===
 
 
 echo "[2/8] Initializing Easy-RSA at $EASYRSA_DIR..."
@@ -79,12 +77,12 @@ EOF
 
 sudo ./easyrsa init-pki
 
-# === [3/13] Creating an OpenVPN Server Certificate Request and Private Key ===
+# === [3/10] Creating an OpenVPN Server Certificate Request and Private Key ===
 
 sudo ./easyrsa --batch gen-req $VPN_SERVER_CN nopass
 sudo cp $EASYRSA_SERVER_DIR/pki/private/$VPN_SERVER_CN.key $SERVER_CONF_DIR
 
-# === [4/8] Signing the OpenVPN Servers Certificate Request ===
+# === [4/10] Signing the OpenVPN Servers Certificate Request ===
 
 sudo cp $EASYRSA_SERVER_DIR/pki/reqs/$VPN_SERVER_CN.req $OPENVPN_TMP_DIR
 cd $EASYRSA_DIR
@@ -96,14 +94,13 @@ sudo cp pki/ca.crt $OPENVPN_TMP_DIR
 
 sudo cp $OPENVPN_TMP_DIR/{$VPN_SERVER_CN.crt,ca.crt} $SERVER_CONF_DIR
 
-
-# === [5/13] Configuring OpenVPN Cryptographic Material ===
+# === [5/10] Configuring OpenVPN Cryptographic Material ===
 
 cd $EASYRSA_SERVER_DIR
 openvpn --genkey --secret ta.key
 sudo cp ta.key $SERVER_CONF_DIR
 
-# === [6/13] Generating a Client Certificate and Key Pair ===
+# === [6/10] Generating a Client Certificate and Key Pair ===
 
 mkdir -p $CLIENT_CONFIGS_DIR/keys || true
 chmod -R 700 $CLIENT_CONFIGS_DIR
@@ -122,56 +119,11 @@ sudo cp $OPENVPN_TMP_DIR/$CLIENT_NAME.crt $CLIENT_CONFIGS_DIR/keys/
 
 cp $EASYRSA_SERVER_DIR/ta.key $CLIENT_CONFIGS_DIR/keys/
 sudo cp $SERVER_CONF_DIR/ca.crt $CLIENT_CONFIGS_DIR/keys/
-#sudo chown admin.admin $CLIENT_CONFIGS_DIR/keys/*
 
-# === [7/13] Configuring OpenVPN ===
-#sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz $SERVER_CONF_DIR
-#sudo gunzip $SERVER_CONF_DIR/server.conf.gz
+# === [7/10] Configuring OpenVPN ===
 sudo cp /tmp/server.conf $SERVER_CONF_DIR
 
-#SERVER_CONF=$SERVER_CONF_DIR/server.conf
-
-# 1. Comment out existing tls-auth line and add tls-crypt line after it
-#sudo sed -i '/^tls-auth / s/^/;/' "$SERVER_CONF"
-#sudo sed -i '/^;tls-auth /a tls-crypt ta.key' "$SERVER_CONF"
-
-# 2. Comment out existing cipher AES-256-CBC and add cipher AES-256-GCM after it
-#sudo sed -i '/^cipher AES-256-CBC/ s/^/;/' "$SERVER_CONF"
-#sudo sed -i '/^;cipher AES-256-CBC/ a cipher AES-256-GCM' "$SERVER_CONF"
-
-# 3. Add auth SHA256 after cipher line (if there is no auth, add after cipher)
-#if ! grep -q '^auth SHA256' "$SERVER_CONF"; then
-#  sudo sed -i '/^cipher AES-256-GCM/ a auth SHA256' "$SERVER_CONF"
-#fi
-
-# 4. Comment out dh line and add "dh none"
-#sudo sed -i '/^dh / s/^/;/' "$SERVER_CONF"
-#if ! grep -q '^dh none' "$SERVER_CONF"; then
-#  sudo sed -i '/^;dh /a dh none' "$SERVER_CONF"
-#fi
-
-# 5. Uncomment user nobody и group nogroup
-#sudo sed -i 's/^;user nobody/user nobody/' "$SERVER_CONF"
-#sudo sed -i 's/^;group nogroup/group nogroup/' "$SERVER_CONF"
-
-# 6. Uncomment push "redirect-gateway def1 bypass-dhcp"
-#sudo sed -i 's/^;push "redirect-gateway def1 bypass-dhcp"/push "redirect-gateway def1 bypass-dhcp"/' "$SERVER_CONF"
-#
-#sudo sed -i 's/^;push "dhcp-option DNS 208.67.222.222"/push "dhcp-option DNS 208.67.222.222"/' "$SERVER_CONF"
-#sudo sed -i 's/^;push "dhcp-option DNS 208.67.220.220"/push "dhcp-option DNS 208.67.220.220"/' "$SERVER_CONF"
-
-# === [9/13] Firewall Configuration ===
-# -
-
-# === [10/13] Starting OpenVPN ===
-
-#sudo systemctl enable openvpn-server@server.service
-#sudo systemctl restart openvpn-server@server.service || echo "OpenVPN restart failed, but t we continue"
-#sudo systemctl status openvpn-server@server.service --no-pager 2>&1 || true
-
-#sleep 2
-
-# === [11/13] Creating the Client Configuration Infrastructure ===
+# === [813] Creating the Client Configuration Infrastructure ===
 mkdir -p $CLIENT_CONFIGS_DIR/files || true
 cp /usr/share/doc/openvpn/examples/sample-config-files/client.conf $CLIENT_CONFIGS_DIR/base.conf
 
@@ -233,20 +185,16 @@ EOF
 
 chmod 700 "$CLIENT_CONFIGS_DIR/make_config.sh"
 
-
-# === [12/13] Generating Client Configurations ===
+# === [9/10] Generating Client Configurations ===
 cd $CLIENT_CONFIGS_DIR
 ./make_config.sh $CLIENT_NAME
 
 ls $CLIENT_CONFIGS_DIR/files
 
-# === [13/13] Adjusting the OpenVPN Server Networking Configuration ===
+# === [10/10] Adjusting the OpenVPN Server Networking Configuration ===
 
 grep -q '^net.ipv4.ip_forward=1' /etc/sysctl.conf || echo 'net.ipv4.ip_forward=1' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p >/dev/null 2>&1
-
-#sudo systemctl restart openvpn-server@server.service
-#sudo systemctl status openvpn-server@server.service --no-pager 2>&1
 
 DEFAULT_IFACE=$(ip route | grep default | awk '{print $5}')
 sudo iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o "$DEFAULT_IFACE" -j MASQUERADE
