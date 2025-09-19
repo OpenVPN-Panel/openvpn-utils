@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /etc/openvpn
+RUN mkdir -p ./server/
 
 #COPY assets/server.conf.gz /usr/share/doc/openvpn/examples/sample-config-files/
 COPY assets/client.conf /usr/share/doc/openvpn/examples/sample-config-files/
