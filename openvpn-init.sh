@@ -18,7 +18,7 @@ CERT_EXPIRE=825
 PUBLIC_IP=$(curl -s ifconfig.me)
 OPENVPN_TMP_DIR="/tmp/openvpn-tmp"
 
-mkdir $OPENVPN_TMP_DIR
+mkdir -p $OPENVPN_TMP_DIR
 trap "rm -rf $OPENVPN_TMP_DIR" EXIT
 LOG="setup.log"
 exec > >(tee -i "$LOG") 2>&1
@@ -33,8 +33,8 @@ sudo apt install easy-rsa -y
 
 #sudo chown admin:admin -R $OPENVPN_TMP_DIR
 
-mkdir -p "$SERVER_CONF_DIR"
-mkdir -p "$EASYRSA_DIR"
+mkdir -p $SERVER_CONF_DIR
+mkdir -p $EASYRSA_DIR
 ln -s /usr/share/easy-rsa/* "$EASYRSA_DIR"
 chmod 700 "$EASYRSA_DIR"
 cd "$EASYRSA_DIR"
@@ -164,11 +164,11 @@ sudo sed -i 's/^;push "dhcp-option DNS 208.67.220.220"/push "dhcp-option DNS 208
 
 # === [10/13] Starting OpenVPN ===
 
-sudo systemctl enable openvpn-server@server.service
-sudo systemctl restart openvpn-server@server.service || echo "OpenVPN restart failed, but t we continue"
-sudo systemctl status openvpn-server@server.service --no-pager 2>&1 || true
+#sudo systemctl enable openvpn-server@server.service
+#sudo systemctl restart openvpn-server@server.service || echo "OpenVPN restart failed, but t we continue"
+#sudo systemctl status openvpn-server@server.service --no-pager 2>&1 || true
 
-sleep 2
+#sleep 2
 
 # === [11/13] Creating the Client Configuration Infrastructure ===
 mkdir -p $CLIENT_CONFIGS_DIR/files
@@ -244,8 +244,8 @@ ls $CLIENT_CONFIGS_DIR/files
 grep -q '^net.ipv4.ip_forward=1' /etc/sysctl.conf || echo 'net.ipv4.ip_forward=1' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p >/dev/null 2>&1
 
-sudo systemctl restart openvpn-server@server.service
-sudo systemctl status openvpn-server@server.service --no-pager 2>&1
+#sudo systemctl restart openvpn-server@server.service
+#sudo systemctl status openvpn-server@server.service --no-pager 2>&1
 
 DEFAULT_IFACE=$(ip route | grep default | awk '{print $5}')
 sudo iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o "$DEFAULT_IFACE" -j MASQUERADE
