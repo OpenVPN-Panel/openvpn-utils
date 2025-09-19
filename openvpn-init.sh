@@ -33,6 +33,7 @@ sudo apt install easy-rsa -y
 
 #sudo chown admin:admin -R $OPENVPN_TMP_DIR
 
+mkdir -p "$SERVER_CONF_DIR"
 mkdir -p "$EASYRSA_DIR"
 ln -s /usr/share/easy-rsa/* "$EASYRSA_DIR"
 chmod 700 "$EASYRSA_DIR"

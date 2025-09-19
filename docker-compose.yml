@@ -10,4 +10,5 @@ services:
       - "1194:1194/udp"
     volumes:
       - ./openvpn-data:/etc/openvpn
+      - ./openvpn-data/home:/root/openvpn
     restart: unless-stopped

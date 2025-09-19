@@ -11,6 +11,9 @@ WORKDIR /etc/openvpn
 COPY openvpn-init.sh /usr/local/bin/setup.sh
 RUN chmod +x /usr/local/bin/setup.sh
 
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 1194/udp
 
-CMD ["/usr/local/bin/setup.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
