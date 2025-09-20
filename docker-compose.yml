@@ -2,28 +2,16 @@ services:
   openvpn:
     build: .
     container_name: openvpn
-    network_mode: host
     env_file:
       - .env
     cap_add:
       - NET_ADMIN
-    devices:
-      - /dev/net/tun
     volumes:
       - ./openvpn-data/server:/etc/openvpn/server
       - ./openvpn-data/home:/root/openvpn/
       - ./scripts:/root/openvpn/scripts
     restart: unless-stopped
+    ports:
+      - "1194:1194/udp"
+      - ${MGMT_PORT}:${MGMT_PORT}
 
-#  agent:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.agent
-#    container_name: agent
-#    network_mode: host
-#    volumes:
-#      - ./openvpn-data/server:/etc/openvpn/server
-#      - ./openvpn-data/home:/root/openvpn/
-#      - ./scripts:/root/openvpn/scripts
-#    depends_on:
-#      - openvpn
