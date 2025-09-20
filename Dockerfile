@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 LABEL maintainer="domster704"
 
 RUN apt-get update && apt-get install -y \
-    openvpn easy-rsa iptables curl jq iproute2 net-tools gettext-base \
+    openvpn netfilter-persistent iptables-persistent easy-rsa iptables curl jq iproute2 net-tools gettext-base \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /etc/openvpn

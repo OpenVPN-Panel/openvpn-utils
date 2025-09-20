@@ -52,8 +52,6 @@ EOF
 # === [1/10] Install OpenVPN and Easy-RSA ===
 
 echo "[1/8] Installing OpenVPN and Easy-RSA..."
-apt install -y openvpn curl jq iptables-persistent
-
 mkdir -p $EASYRSA_SERVER_DIR || true
 ln -s /usr/share/easy-rsa/* $EASYRSA_SERVER_DIR
 chmod 700 $EASYRSA_SERVER_DIR
@@ -163,7 +161,6 @@ grep -q '^net.ipv4.ip_forward=1' /etc/sysctl.conf || echo 'net.ipv4.ip_forward=1
 sysctl -p >/dev/null 2>&1
 
 DEFAULT_IFACE=$(ip route | grep default | awk '{print $5}')
-iptables -t nat -C POSTROUTING -s 10.8.0.0/24 -o "$DEFAULT_IFACE" -j MASQUERADE 2>/dev/null || \
 iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o "$DEFAULT_IFACE" -j MASQUERADE
 
 netfilter-persistent save
