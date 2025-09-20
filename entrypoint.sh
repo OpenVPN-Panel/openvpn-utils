@@ -2,7 +2,6 @@
 set -e
 
 SERVER_CONF="/etc/openvpn/server/server.conf"
-SCRIPTS_DIR="/root/openvpn/scripts"
 
 if [ ! -f "$SERVER_CONF" ]; then
   echo "[INIT] No server.conf found, running setup.sh..."
