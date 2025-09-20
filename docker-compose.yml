@@ -6,6 +6,8 @@ services:
       - .env
     cap_add:
       - NET_ADMIN
+    devices:
+      - /dev/net/tun
     volumes:
       - ./openvpn-data/server:/etc/openvpn/server
       - ./openvpn-data/home:/root/openvpn/
